@@ -1,0 +1,20 @@
+
+COMO HACER MAS DE UN LAYOUT
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import AdminLayout from "./layouts/AdminLayout";
+import ClientLayout from "./layouts/ClientLayout";
+import AdminPage from "./pages/AdminPage";
+import ClientPage from "./pages/ClientPage";
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/admin" element={<AdminLayout><AdminPage /></AdminLayout>} />
+        <Route path="/" element={<ClientLayout><ClientPage /></ClientLayout>} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
