@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import com.yr.alquilercoches.models.entities.ClienteRegistroDTO;
 import com.yr.alquilercoches.models.entities.Clientes;
 import com.yr.alquilercoches.models.services.ClienteService;
 
@@ -20,26 +21,27 @@ public class RegisterRestController {
 
     // POST: Registrar un cliente
     @PostMapping
-    public ResponseEntity<String> registrarCliente(@RequestBody Clientes cliente) {
+    public ResponseEntity<String> registrarCliente(@RequestBody ClienteRegistroDTO dto) {
         try {
-            // Encripta la contraseña
-            String rawPassword = cliente.getPassword();
-            String encodedPassword = passwordEncoder.encode(rawPassword);
+            Clientes cliente = new Clientes();
+            cliente.setNombre(dto.getNombre());
+            cliente.setApellidos(dto.getApellidos());
+            cliente.setUsername(dto.getUsername());
+            cliente.setEmail(dto.getEmail());
+            cliente.setTelefono(dto.getTelefono());
+            cliente.setDni(dto.getDni());
+            String encodedPassword = passwordEncoder.encode(dto.getPassword());
             cliente.setPassword(encodedPassword);
             cliente.setRole("ROLE_USER");
-
-            // Verifica la contraseña encriptada (solo como ejemplo de seguridad)
-            boolean verifies = passwordEncoder.matches(rawPassword, encodedPassword);
-            System.out.println("Verification after encoding: " + verifies);
-
-            // Guarda el cliente
+    
             clienteService.save(cliente);
             return ResponseEntity.ok("Cliente registrado exitosamente.");
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).body("Error al registrar el cliente: " + e.getMessage());
         }
     }
-
+    
     // GET: Mostrar el formulario de registro (ejemplo adaptado)
     @GetMapping
     public ResponseEntity<String> showRegistrationInfo() {

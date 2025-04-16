@@ -1,42 +1,87 @@
 package com.yr.alquilercoches.controllers.wwwControllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import com.yr.alquilercoches.models.entities.Clientes;
+import com.yr.alquilercoches.models.services.ClienteService;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/login") // Base de URL REST para autenticación
+@RequestMapping("/api/auth")
 public class LoginRestController {
 
-    @GetMapping
-    public ResponseEntity<?> showLoginForm(
-            @RequestParam(required = false) String error,
-            @RequestParam(required = false) String logout) {
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-        // Crear un objeto de respuesta
-        LoginResponse response = new LoginResponse();
+    @Autowired
+    private ClienteService clienteService;
+@GetMapping("/login")
+    public ResponseEntity<?> authenticateUser(@RequestParam String username, 
+                                           @RequestParam String password) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+            );
 
-        if (error != null) {
-            response.setError("Invalid username or password.");
+            // Get the client by username
+            Clientes cliente = clienteService.findByUsername(username);
+            
+            if (cliente == null) {
+                throw new AuthenticationException("Usuario no encontrado") {};
+            }
+
+            LoginResponse response = new LoginResponse();
+            response.setSuccess(true);
+            response.setRole(cliente.getRole());
+            response.setToken("session-" + System.currentTimeMillis()); // Simple session token
+            
+            return ResponseEntity.ok(response);
+
+        } catch (AuthenticationException e) {
+            LoginResponse response = new LoginResponse();
+            response.setSuccess(false);
+            response.setMessage("Usuario o contraseña incorrectos");
+            return ResponseEntity.status(401).body(response);
         }
-
-        if (logout != null) {
-            response.setMessage("You have been logged out successfully.");
-        }
-
-        return ResponseEntity.ok(response);
     }
 
-    // Clase interna para manejar la estructura de la respuesta JSON
+
     static class LoginResponse {
-        private String error;
+        private boolean success;
+        private String token;
+        private String role;
         private String message;
 
-        public String getError() {
-            return error;
+        public boolean isSuccess() {
+            return success;
         }
 
-        public void setError(String error) {
-            this.error = error;
+        public void setSuccess(boolean success) {
+            this.success = success;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
         }
 
         public String getMessage() {

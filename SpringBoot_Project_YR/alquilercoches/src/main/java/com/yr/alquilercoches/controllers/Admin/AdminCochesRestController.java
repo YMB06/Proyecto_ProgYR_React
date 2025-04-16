@@ -38,34 +38,6 @@ public class AdminCochesRestController {
         return ResponseEntity.ok(coches);
     }
 
-    // POST: Crear un coche
-    @PostMapping("/crear")
-    public ResponseEntity<String> crearCoche(
-            @ModelAttribute Coches coche,
-            @RequestParam("file") MultipartFile file) {
-        try {
-            // Maneja la subida de archivos
-            if (!file.isEmpty()) {
-                String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-
-                Path uploadDir = Paths.get(uploadPath);
-                if (!Files.exists(uploadDir)) {
-                    Files.createDirectories(uploadDir);
-                }
-
-                Path filePath = uploadDir.resolve(filename);
-                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                coche.setImagen(filename);
-            }
-
-            cochesService.save(coche);
-            return ResponseEntity.ok("Coche creado exitosamente.");
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error al crear el coche: " + e.getMessage());
-        }
-    }
-
     // GET: Obtener un coche por ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getCocheById(@PathVariable Long id) {
@@ -80,43 +52,63 @@ public class AdminCochesRestController {
         }
     }
 
-    // PUT: Editar un coche por ID
-    @PutMapping("/editar/{id}")
-    public ResponseEntity<String> editarCoche(
-            @PathVariable Long id,
-            @ModelAttribute Coches coche,
-            @RequestParam(value = "file", required = false) MultipartFile file) {
+    @PostMapping("/crear")
+    public ResponseEntity<?> crearCoche(@ModelAttribute Coches coche, 
+                                      @RequestParam("file") MultipartFile file) {
         try {
-            if (file != null && !file.isEmpty()) {
-                Coches existingCoche = cochesService.getId(id);
-                if (existingCoche != null && existingCoche.getImagen() != null) {
-                    Path oldFile = Paths.get(uploadPath).resolve(existingCoche.getImagen());
-                    Files.deleteIfExists(oldFile);
-                }
-
+            if (!file.isEmpty()) {
                 String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-
                 Path uploadDir = Paths.get(uploadPath);
                 if (!Files.exists(uploadDir)) {
                     Files.createDirectories(uploadDir);
                 }
-
                 Path filePath = uploadDir.resolve(filename);
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                coche.setImagen(filename);
+            }
+            
+            Coches savedCoche = cochesService.save(coche);
+            return ResponseEntity.ok(savedCoche);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500)
+                .body("Error al crear el coche: " + e.getMessage());
+        }
+    }
 
+    @PutMapping("/editar/{id}")
+    public ResponseEntity<?> editarCoche(@PathVariable Long id,
+                                       @ModelAttribute Coches coche,
+                                       @RequestParam(value = "file", required = false) MultipartFile file) {
+        try {
+            Coches existingCoche = cochesService.getId(id);
+            if (existingCoche == null) {
+                return ResponseEntity.status(404).body("Coche no encontrado");
+            }
+
+            if (file != null && !file.isEmpty()) {
+                // Delete old image if exists
+                if (existingCoche.getImagen() != null) {
+                    Path oldFile = Paths.get(uploadPath).resolve(existingCoche.getImagen());
+                    Files.deleteIfExists(oldFile);
+                }
+
+                // Save new image
+                String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                Path filePath = Paths.get(uploadPath).resolve(filename);
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
                 coche.setImagen(filename);
             } else {
-                Coches existingCoche = cochesService.getId(id);
-                if (existingCoche != null) {
-                    coche.setImagen(existingCoche.getImagen());
-                }
+                coche.setImagen(existingCoche.getImagen());
             }
 
             coche.setId(id);
-            cochesService.update(coche);
-            return ResponseEntity.ok("Coche actualizado exitosamente.");
+            Coches updatedCoche = cochesService.update(coche);
+            return ResponseEntity.ok(updatedCoche);
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error al actualizar el coche: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500)
+                .body("Error al actualizar el coche: " + e.getMessage());
         }
     }
 

@@ -7,50 +7,95 @@ interface Coche {
   modelo: string;
   precio: number;
   año: number;
-  imagen?: string; // Opcional
+  imagen?: string; 
 }
 
 export const Index: React.FC = () => {
   const [coches, setCoches] = useState<Coche[]>([]);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+
+  const getImageUrl = (imageName: string) => {
+    return `http://localhost:8081/uploads/coches/${imageName}`;
+  };
+
+  const handleImageError = (imageName: string) => {
+    if (!imageErrors.has(imageName)) {
+      console.error('Error loading image:', imageName);
+      setImageErrors(prev => new Set([...prev, imageName]));
+    }
+  };
 
   // Obtiene la lista de coches desde el backend
   useEffect(() => {
     const fetchCoches = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/coches');
+        const response = await axios.get('http://localhost:8081/api/coches');
+        console.log('Datos obtenidos:', response.data); // Debugging
         setCoches(response.data);
       } catch (error) {
         console.error('Error al obtener la lista de coches:', error);
       }
     };
-
     fetchCoches();
   }, []);
 
+  
+
   return (
     <div>
+
       {/* Carrusel con los coches */}
       <div id="carCarousel" className="carousel slide mb-4" data-bs-ride="carousel">
-        <div className="carousel-inner">
-          {coches.map((coche, index) => (
-            <div key={coche.id} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
-              <a href={`/coches/${coche.id}`}>
-                {coche.imagen && (
-                  <img
-                    src={`/uploads/coches/${coche.imagen}`}
-                    className="d-block w-100"
-                    style={{ height: '400px', width: '100%', objectFit: 'cover' }}
-                    alt={`${coche.marca} ${coche.modelo}`}
-                  />
-                )}
-                <div className="carousel-caption d-none d-md-block">
-                  <h5>{`${coche.marca} ${coche.modelo}`}</h5>
-                  <p>{`Año: ${coche.año} - Precio por día: ${coche.precio}€`}</p>
-                </div>
-              </a>
-            </div>
-          ))}
+  {/* Add indicators */}
+  <div className="carousel-indicators">
+    {coches.map((_, index) => (
+      <button
+        key={index}
+        type="button"
+        data-bs-target="#carCarousel"
+        data-bs-slide-to={index}
+        className={index === 0 ? 'active' : ''}
+        aria-current={index === 0 ? 'true' : 'false'}
+        aria-label={`Slide ${index + 1}`}
+      ></button>
+    ))}
+  </div>
+
+  {/* Your existing carousel-inner code */}
+  <div className="carousel-inner">
+    {coches.map((coche, index) => (
+      <div key={coche.id} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
+        <a href={`/coches/${coche.id}`}>
+        {coche.imagen ? (
+        !imageErrors.has(coche.imagen) ? (
+          <img
+            src={getImageUrl(coche.imagen)}
+            className="d-block w-100"
+            style={{ height: '400px', objectFit: 'cover' }}
+            alt={`${coche.marca} ${coche.modelo}`}
+            onError={() => handleImageError(coche.imagen!)}
+          />
+        ) : (
+          <div className="placeholder-img bg-secondary" 
+               style={{ height: '400px', width: '100%' }}>
+            <span className="text-white">No imagen disponible</span>
+          </div>
+        )
+      ) : (
+        <div className="placeholder-img bg-secondary" 
+             style={{ height: '400px', width: '100%' }}>
+          <span className="text-white">No imagen disponible</span>
         </div>
+      )}
+
+          <div className="carousel-caption d-none d-md-block bg-dark bg-opacity-50">
+            <h5>{`${coche.marca} ${coche.modelo}`}</h5>
+            <p>{`Año: ${coche.año} - Precio por día: ${coche.precio}€`}</p>
+          </div>
+        </a>
+      </div>
+    ))}
+  </div>
         <button
           className="carousel-control-prev"
           type="button"

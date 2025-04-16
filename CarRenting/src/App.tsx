@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
-import './App.css'
-import { Index } from './pages/www/Site'
+import { ClientRoutes } from './routes/ClientRoutes';
+import { AdminRoutes } from './routes/AdminRoutes';
 
 function App() {
   useEffect(() => {
@@ -20,7 +20,9 @@ function App() {
   }, []);
   return (
     <>
-      <Index />    </>
+      <ClientRoutes />
+      <AdminRoutes />
+      </>
   )
 }
 

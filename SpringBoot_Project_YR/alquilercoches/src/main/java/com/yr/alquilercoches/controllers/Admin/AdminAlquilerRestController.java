@@ -1,4 +1,12 @@
+package com.yr.alquilercoches.controllers.Admin;
+
 import org.springframework.web.bind.annotation.*; // Import necesario para un REST Controller
+
+import com.yr.alquilercoches.models.entities.Alquiler;
+import com.yr.alquilercoches.models.services.AlquilerService;
+import com.yr.alquilercoches.models.services.ClienteService;
+import com.yr.alquilercoches.models.services.CochesService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 

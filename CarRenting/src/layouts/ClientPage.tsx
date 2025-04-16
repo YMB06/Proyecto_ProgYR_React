@@ -1,6 +1,6 @@
 import React from 'react';
-import Navbar from '../components/www/Menu';
 import Footer from '../components/www/Footer';
+import { Header } from '../components/www/Header';
 
 interface ClientPageProps {
   children?: React.ReactNode; // Permite recibir `children` como prop
@@ -9,7 +9,7 @@ interface ClientPageProps {
 export const ClientPage: React.FC<ClientPageProps> = ({ children }) => {
   return (
     <>
-      <Navbar />
+      <Header />
       <main>{children}</main> {/* Renderiza contenido dinámico aquí */}
       <Footer />
     </>

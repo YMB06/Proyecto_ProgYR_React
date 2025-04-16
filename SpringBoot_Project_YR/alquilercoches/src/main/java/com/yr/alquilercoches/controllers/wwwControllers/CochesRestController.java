@@ -11,8 +11,8 @@ import com.yr.alquilercoches.models.services.CochesService;
 
 @RestController
 @RequestMapping("/api/coches") // Define la base de la URL
+@CrossOrigin(origins = "http://localhost:5173") // Permitir acceso desde tu frontend
 public class CochesRestController {
-
     @Autowired
     private CochesService cochesService;
 
@@ -21,7 +21,7 @@ public class CochesRestController {
         return ResponseEntity.ok(cochesService.getAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}") // Remove "api/coches" here to avoid redundancy
     public ResponseEntity<Coches> getCarById(@PathVariable Long id) {
         return ResponseEntity.ok(cochesService.getId(id));
     }

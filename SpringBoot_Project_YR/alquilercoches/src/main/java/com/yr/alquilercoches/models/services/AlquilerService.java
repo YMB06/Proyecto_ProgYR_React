@@ -54,38 +54,25 @@ public class AlquilerService {
         return alquilerRepository.findTop10ByOrderByIdDesc();
     }
 
-    public boolean isCarAvailable(Long carId, String startDate, String endDate) {
-        try {
-            List<Alquiler> existingRentals = alquilerRepository.findByCocheId(carId);
-            LocalDate start = LocalDate.parse(startDate);
-            LocalDate end = LocalDate.parse(endDate);
-
-            // comprobamos que las fechas de los alquileres sean validas
-            if (start.isAfter(end)) {
-                return false;
+    public boolean isCarAvailable(Long cocheId, String startDate, String endDate) {
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        
+        // Get all rentals for this car
+        List<Alquiler> alquileres = alquilerRepository.findByCocheId(cocheId);
+        
+        // Check for overlapping rentals
+        for (Alquiler alquiler : alquileres) {
+            LocalDate alquilerStart = LocalDate.parse(alquiler.getFecha_inicio());
+            LocalDate alquilerEnd = LocalDate.parse(alquiler.getFecha_fin());
+            
+            // Check if dates overlap
+            if (!(end.isBefore(alquilerStart) || start.isAfter(alquilerEnd))) {
+                return false; // Dates overlap, car is not available
             }
-
-            // comprobamos los alquileres
-            for (Alquiler rental : existingRentals) {
-                try {
-                    LocalDate rentalStart = LocalDate.parse(rental.getFecha_inicio());
-                    LocalDate rentalEnd = LocalDate.parse(rental.getFecha_fin());
-
-                    // comprobamos que no se solapen
-                    boolean overlap = !(end.isBefore(rentalStart) || start.isAfter(rentalEnd));
-                    if (overlap) {
-                        return false;
-                    }
-                } catch (Exception e) {
-                    // se salta el alquiler si hay algun error en las fechas
-                    continue;
-                }
-            }
-            return true;
-        } catch (Exception e) {
-            // si hay algun error en las fechas se dice que el coche no esta disponible
-            return false;
         }
+        
+        return true; // No overlapping rentals found
     }
 
     
