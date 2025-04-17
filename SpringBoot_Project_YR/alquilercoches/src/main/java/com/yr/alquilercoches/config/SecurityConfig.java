@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,26 +40,25 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers(
-                    "/api/**",
-                    "/uploads/**",
-                    "/static/**", 
-                    "/css/**", 
-                    "/js/**", 
-                    "/images/**", 
-                    "/register", 
-                    "/login",
-                    "/"
-                ).permitAll()
+                .requestMatchers("/api/**", "/uploads/**", "/static/**", "/css/**", 
+                    "/js/**", "/images/**", "/register", "/login", "/").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginProcessingUrl("/api/auth/login")
-                .usernameParameter("username")
-                .passwordParameter("password")
                 .successHandler((request, response, authentication) -> {
+                    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                    String role = userDetails.getAuthorities().stream()
+                        .findFirst()
+                        .map(GrantedAuthority::getAuthority)
+                        .orElse("ROLE_USER");
+
                     response.setContentType("application/json");
-                    response.getWriter().write("{\"success\":true}");
+                    response.getWriter().write(String.format(
+                        "{\"success\":true,\"role\":\"%s\",\"username\":\"%s\"}",
+                        role,
+                        userDetails.getUsername()
+                    ));
                 })
                 .failureHandler((request, response, exception) -> {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -66,6 +66,7 @@ public class SecurityConfig {
                     response.getWriter().write("{\"error\":\"" + exception.getMessage() + "\"}");
                 })
             )
+            
             .logout(logout -> logout
                 .logoutUrl("/api/auth/logout")
                 .logoutSuccessHandler((request, response, authentication) -> {

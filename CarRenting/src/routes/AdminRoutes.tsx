@@ -12,23 +12,29 @@ import { CrearAlquiler } from '../pages/admin/crear/crearAlquileres';
 import { EditarCliente } from '../pages/admin/editar/editarClientes';
 import { EditarCoche } from '../pages/admin/editar/editarCoches';
 import { EditarAlquiler } from '../pages/admin/editar/editarAlquileres';
+import { ProtectedRoute } from '../config/ProtectedRoutes';
+
 
 export const AdminRoutes = () => {
   return (
+    <ProtectedRoute>
 
             <Routes>
-              <Route path="/admin" element={<AdminPage><AdminDashboard /></AdminPage>} />
-              <Route path="/admin/clientes" element={<AdminPage><AdminClientes /></AdminPage>} />
-              <Route path="/admin/coches" element={<AdminPage><AdminCoches /></AdminPage>} />
-              <Route path="/admin/alquileres" element={<AdminPage><AdminAlquileres /></AdminPage>} />
-              <Route path="/admin/clientes/crear" element={<AdminPage><CrearCliente /></AdminPage>} />
-              <Route path="/admin/coches/crear" element={<AdminPage><CrearCoche /></AdminPage>} />
-              <Route path="/admin/alquileres/crear" element={<AdminPage><CrearAlquiler /></AdminPage>} />
-              <Route path="/admin/clientes/editar/:id" element={<AdminPage><EditarCliente /></AdminPage>} />
-              <Route path="/admin/coches/editar/:id" element={<AdminPage><EditarCoche /></AdminPage>} />
-              <Route path="/admin/alquileres/editar/:id" element={<AdminPage><EditarAlquiler /></AdminPage>} />
+              
+            <Route path="/" element={<AdminPage><AdminDashboard /></AdminPage>} />
+               <Route path="/clientes" element={<AdminPage><AdminClientes /></AdminPage>} />
+               <Route path="/coches" element={<AdminPage><AdminCoches /></AdminPage>} />
+               <Route path="/alquileres" element={<AdminPage><AdminAlquileres /></AdminPage>} />
+               <Route path="/clientes/crear" element={<AdminPage><CrearCliente /></AdminPage>} />
+               <Route path="/coches/crear" element={<AdminPage><CrearCoche /></AdminPage>} />
+               <Route path="/alquileres/crear" element={<AdminPage><CrearAlquiler /></AdminPage>} />
+               <Route path="/clientes/editar/:id" element={<AdminPage><EditarCliente /></AdminPage>} />
+               <Route path="/coches/editar/:id" element={<AdminPage><EditarCoche /></AdminPage>} />
+               <Route path="/alquileres/editar/:id" element={<AdminPage><EditarAlquiler /></AdminPage>} />
 
-            </Routes>
+             </Routes>
+             </ProtectedRoute>
 
+             
   );
 }

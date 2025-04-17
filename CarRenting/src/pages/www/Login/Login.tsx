@@ -1,9 +1,12 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../../config/AuthProvider';
 
-interface LoginResponse {
+export interface LoginResponse {
   success: boolean;
+  role: string;
+  username: string;
   message?: string;
 }
 
@@ -13,18 +16,19 @@ export const Login = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-
+  
     try {
       const formData = new URLSearchParams();
       formData.append('username', username);
       formData.append('password', password);
-
-      const response = await axios.post<LoginResponse>(
+  
+      const response = await axios.post(
         'http://localhost:8081/api/auth/login',
         formData.toString(),
         {
@@ -33,12 +37,23 @@ export const Login = () => {
           }
         }
       );
-
-      if (response.data.success) {
+  
+      console.log('Login response:', response.data);
+  
+      if (response.data.success && response.data.role) {
         setSuccess('Login exitoso');
-        setTimeout(() => {
+        
+        // Store the role in AuthContext
+        login(response.data.role);
+        
+        console.log('Role set:', response.data.role);
+  
+        // Navigate based on role
+        if (response.data.role === 'ROLE_ADMIN') {
+          navigate('/admin');
+        } else {
           navigate('/');
-        }, 1500);
+        }
       } else {
         setError(response.data.message || 'Error en la autenticación');
       }

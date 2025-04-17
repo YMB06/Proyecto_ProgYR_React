@@ -1,7 +1,8 @@
 
 import { useEffect } from 'react';
-import { ClientRoutes } from './routes/ClientRoutes';
-import { AdminRoutes } from './routes/AdminRoutes';
+
+import { AuthProvider } from './config/AuthProvider';
+import { AppRoutes } from './routes/AppRoutes';
 
 function App() {
   useEffect(() => {
@@ -19,10 +20,9 @@ function App() {
 
   }, []);
   return (
-    <>
-      <ClientRoutes />
-      <AdminRoutes />
-      </>
+    <AuthProvider>
+    <AppRoutes />
+  </AuthProvider>
   )
 }
 

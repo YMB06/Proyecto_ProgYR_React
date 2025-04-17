@@ -1,9 +1,8 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../config/AuthProvider";
 
 const Navbar = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
+  const { isAuthenticated, userRole, logout } = useAuth();
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
@@ -43,16 +42,25 @@ const Navbar = () => {
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/register">
-                    <i className="bi bi-person-plus"></i> Registro
+                    <i className="bi bi-person-plus"></i> Register
                   </Link>
                 </li>
               </>
             ) : (
-              <li className="nav-item">
-                <button className="nav-link btn btn-link" onClick={() => setIsAuthenticated(false)}>
-                  <i className="bi bi-box-arrow-right"></i> Logout
-                </button>
-              </li>
+              <>
+                {userRole === 'ROLE_ADMIN' && (
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/admin">
+                      <i className="bi bi-gear"></i> Admin Panel
+                    </Link>
+                  </li>
+                )}
+                <li className="nav-item">
+                  <button className="btn btn-link nav-link" onClick={logout}>
+                    <i className="bi bi-box-arrow-right"></i> Logout
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </div>
