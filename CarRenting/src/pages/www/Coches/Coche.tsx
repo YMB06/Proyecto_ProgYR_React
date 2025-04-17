@@ -16,7 +16,8 @@ const Coche = () => {
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   // Función para obtener la URL de las imágenes
-  const getImageUrl = (imageName: string) => {
+  const getImageUrl = (imageName: string | undefined) => {
+    if (!imageName) return '';
     return `http://localhost:8081/uploads/coches/${imageName}`;
   };
 

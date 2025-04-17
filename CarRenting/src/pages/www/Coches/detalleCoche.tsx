@@ -145,8 +145,12 @@ export const DetalleCoche = () => {
               <img
                 src={getImageUrl(coche.imagen)}
                 className="card-img-top"
-                style={{ height: '300px', width: '100%', objectFit: 'cover' }}
-                alt={`${coche.marca} ${coche.modelo}`}
+                style={{ 
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  backgroundColor: '#f8f9fa'
+                }}                alt={`${coche.marca} ${coche.modelo}`}
               />
             )}
           </div>

@@ -44,6 +44,10 @@ export const AdminCoches = () => {
       setError('Error al eliminar el coche' + err);
     }
   };
+  const getImageUrl = (imageName: string | undefined) => {
+    if (!imageName) return '';
+    return `http://localhost:8081/uploads/coches/${imageName}`;
+  };
 
   if (loading) return <div>Cargando...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
@@ -77,14 +81,19 @@ export const AdminCoches = () => {
               <tr key={coche.id}>
                 <td>{coche.id}</td>
                 <td>
-                  {coche.imagen && (
-                    <img
-                      src={`http://localhost:8081/uploads/coches/${coche.imagen}`}
-                      alt={`${coche.marca} ${coche.modelo}`}
-                      style={{ height: '50px' }}
-                    />
-                  )}
-                </td>
+  {coche.imagen && (
+    <img
+      src={getImageUrl(coche.imagen)}
+      alt={`${coche.marca} ${coche.modelo}`}
+      style={{ 
+        height: '50px', 
+        width: '80px',
+        objectFit: 'cover',
+        borderRadius: '4px'
+      }}
+    />
+  )}
+</td>
                 <td>{coche.marca}</td>
                 <td>{coche.modelo}</td>
                 <td>{coche.año}</td>
