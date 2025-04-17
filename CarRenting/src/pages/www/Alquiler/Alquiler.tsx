@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../../config/AuthProvider';
 
 interface Coche {
   id: number;
@@ -8,8 +9,16 @@ interface Coche {
   precio: number;
 }
 
+interface Alquiler {
+  id: number;
+  coche: Coche;
+  fecha_inicio: string;
+  fecha_fin: string;
+  precio_total: number;
+}
+
 export const Alquiler = () => {
-  const [coches, setCoches] = useState<Coche[]>([]);
+  const [alquileres, setAlquileres] = useState<Alquiler[]>([]);
   const [formData, setFormData] = useState({
     cocheId: '',
     fecha_inicio: '',
@@ -17,147 +26,109 @@ export const Alquiler = () => {
     precio_total: 0
   });
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
 
-  const token = localStorage.getItem("token");
-
-  // Cargar coches disponibles
+  // Load rentals and cars
   useEffect(() => {
-    const fetchCoches = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:8081/api/coches');
-        setCoches(response.data);
+        const [alquileresRes] = await Promise.all([
+          axios.get<Alquiler[]>('http://localhost:8081/api/alquileres'),
+        ]);
+
+       
+
+        if (Array.isArray(alquileresRes.data)) {
+          setAlquileres(alquileresRes.data);
+        } else {
+          console.error('Alquileres data is not an array:', alquileresRes.data);
+          setAlquileres([]);
+        }
       } catch (err) {
-        setError('Error al cargar los coches: ' + err);
+        console.error('Error fetching data:', err);
+        setError('Error al cargar los datos. Por favor, inténtelo de nuevo más tarde.');
+        setAlquileres([]); // Set empty array on error
       }
     };
-    fetchCoches();
-  }, []);
 
-  // Calcular precio total cuando cambian cocheId o fechas
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated]);
+
+
+
+  // Calculate price when dates or car changes
   useEffect(() => {
-    const calcularPrecioLocal = () => {
+    const calcularPrecio = async () => {
       if (!formData.cocheId || !formData.fecha_inicio || !formData.fecha_fin) return;
 
-      const coche = coches.find(c => c.id.toString() === formData.cocheId);
-      if (!coche) return;
+      try {
+        const response = await axios.get(`http://localhost:8081/api/alquileres/calcular-precio`, {
+          params: {
+            cocheId: formData.cocheId,
+            fechaInicio: formData.fecha_inicio,
+            fechaFin: formData.fecha_fin
+          }
+        });
 
-      const inicio = new Date(formData.fecha_inicio);
-      const fin = new Date(formData.fecha_fin);
-      const dias = Math.floor((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
-      // Evitar precios negativos
-      if (dias < 1) return;
-
-      const precioTotal = dias * coche.precio;
-
-      setFormData(prev => ({
-        ...prev,
-        precio_total: precioTotal
-      }));
+        setFormData(prev => ({
+          ...prev,
+          precio_total: response.data.precioTotal
+        }));
+      } catch (err) {
+        console.error('Error calculating price:', err);
+      }
     };
 
-    calcularPrecioLocal();
-  }, [formData.cocheId, formData.fecha_inicio, formData.fecha_fin, coches]);
+    calcularPrecio();
+  }, [formData.cocheId, formData.fecha_inicio, formData.fecha_fin]);
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'fecha_inicio' | 'fecha_fin') => {
-    const newValue = e.target.value;
-    setFormData(prev => ({
-      ...prev,
-      [field]: newValue
-    }));
-  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await axios.post('http://localhost:8081/api/alquiler/reservar', null, {
-        params: {
-          cocheId: formData.cocheId,
-          fecha_inicio: formData.fecha_inicio,
-          fecha_fin: formData.fecha_fin,
-          precio_total: formData.precio_total
-        },
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
 
-      alert('¡Reserva realizada con éxito!');
-      setFormData({
-        cocheId: '',
-        fecha_inicio: '',
-        fecha_fin: '',
-        precio_total: 0
-      });
-    } catch (err) {
-      console.error('Error al realizar la reserva:', err);
-      setError('Error al realizar la reserva.');
-    }
-  };
+     
 
   return (
     <div className="container-fluid p-4">
-      <h1>Reservar Coche</h1>
-
-      {error && <div className="alert alert-danger">{error}</div>}
-
-      <form onSubmit={handleSubmit}>
-        <div className="form-group mb-3">
-          <label>Coche:</label>
-          <select
-            className="form-control"
-            value={formData.cocheId}
-            onChange={(e) => setFormData({ ...formData, cocheId: e.target.value })}
-            required
-          >
-            <option value="">Seleccione un coche</option>
-            {coches.map(coche => (
-              <option key={coche.id} value={coche.id}>
-                {coche.marca} {coche.modelo} - {coche.precio}€/día
-              </option>
-            ))}
-          </select>
+      <h1 className="mb-4 text-center">
+        <i className="bi bi-car-front"></i> Alquiler de Coches
+      </h1>
+  
+      {error && (
+        <div className="alert alert-danger d-flex align-items-center" role="alert">
+          <i className="bi bi-exclamation-circle me-2"></i> {error}
         </div>
-
-        <div className="form-group mb-3">
-          <label>Fecha de inicio:</label>
-          <input
-            type="date"
-            className="form-control"
-            value={formData.fecha_inicio}
-            onChange={(e) => handleDateChange(e, 'fecha_inicio')}
-            min={new Date().toISOString().split('T')[0]}
-            required
-          />
+      )}
+  
+      <h2 className="mb-3 text-center">
+        <i className="bi bi-calendar-check"></i> Mis Alquileres
+      </h2>
+  
+      {alquileres.length > 0 ? (
+        <div className="row">
+          {alquileres.map((alquiler) => (
+            <div key={alquiler.id} className="col-md-4 mb-3">
+              <div className="card shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title text-primary">
+                    <i className="bi bi-car-front-fill"></i> {alquiler.coche.marca} {alquiler.coche.modelo}
+                  </h5>
+                  <p className="card-text">
+                    <i className="bi bi-calendar-day"></i> <strong>Fecha inicio:</strong> {new Date(alquiler.fecha_inicio).toLocaleDateString()}<br />
+                    <i className="bi bi-calendar"></i> <strong>Fecha fin:</strong> {new Date(alquiler.fecha_fin).toLocaleDateString()}<br />
+                    <i className="bi bi-cash"></i> <strong>Precio total:</strong> {alquiler.precio_total}€
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-
-        <div className="form-group mb-3">
-          <label>Fecha de fin:</label>
-          <input
-            type="date"
-            className="form-control"
-            value={formData.fecha_fin}
-            onChange={(e) => handleDateChange(e, 'fecha_fin')}
-            min={formData.fecha_inicio || new Date().toISOString().split('T')[0]}
-            required
-          />
+      ) : (
+        <div className="alert alert-info text-center" role="alert">
+          <i className="bi bi-info-circle"></i> No tienes alquileres activos
         </div>
-
-        <div className="form-group mb-3">
-          <label>Precio total:</label>
-          <div className="input-group">
-            <input
-              type="number"
-              className="form-control"
-              value={formData.precio_total}
-              readOnly
-            />
-            <span className="input-group-text">€</span>
-          </div>
-        </div>
-
-        <button type="submit" className="btn btn-primary">Reservar</button>
-      </form>
+      )}
     </div>
   );
+
 };

@@ -53,26 +53,38 @@ public class AlquilerService {
     public List<Alquiler> getUltimosAlquileres(int limit) {
         return alquilerRepository.findTop10ByOrderByIdDesc();
     }
-
+    public List<Alquiler> getActiveRentals(Long clienteId) {
+        String currentDate = LocalDate.now().toString();
+        return alquilerRepository.findActiveRentalsByClienteId(clienteId, currentDate);
+    }
     public boolean isCarAvailable(Long cocheId, String startDate, String endDate) {
-        LocalDate start = LocalDate.parse(startDate);
-        LocalDate end = LocalDate.parse(endDate);
+        LocalDate requestStart = LocalDate.parse(startDate);
+        LocalDate requestEnd = LocalDate.parse(endDate);
         
-        // Get all rentals for this car
-        List<Alquiler> alquileres = alquilerRepository.findByCocheId(cocheId);
+        List<Alquiler> existingRentals = alquilerRepository.findByCocheId(cocheId);
         
-        // Check for overlapping rentals
-        for (Alquiler alquiler : alquileres) {
-            LocalDate alquilerStart = LocalDate.parse(alquiler.getFecha_inicio());
-            LocalDate alquilerEnd = LocalDate.parse(alquiler.getFecha_fin());
+        // If no existing rentals, car is available
+        if (existingRentals.isEmpty()) {
+            return true;
+        }
+        
+        // Check each existing rental for overlap
+        for (Alquiler rental : existingRentals) {
+            LocalDate rentalStart = LocalDate.parse(rental.getFecha_inicio());
+            LocalDate rentalEnd = LocalDate.parse(rental.getFecha_fin());
             
-            // Check if dates overlap
-            if (!(end.isBefore(alquilerStart) || start.isAfter(alquilerEnd))) {
-                return false; // Dates overlap, car is not available
+            // Overlap check: if either the start or end date falls within an existing rental period
+            boolean hasOverlap = !(
+                requestEnd.isBefore(rentalStart) || // Requested period ends before rental starts
+                requestStart.isAfter(rentalEnd)     // Requested period starts after rental ends
+            );
+            
+            if (hasOverlap) {
+                return false; // Car is not available
             }
         }
         
-        return true; // No overlapping rentals found
+        return true; // No overlaps found, car is available
     }
 
     
