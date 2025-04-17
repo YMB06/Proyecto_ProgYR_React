@@ -1,21 +1,23 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+
 interface LoginResponse {
-  success?: boolean;
+  success: boolean;
   message?: string;
 }
+
 export const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError(null);
+    setSuccess(null);
 
     try {
       const formData = new URLSearchParams();
@@ -23,7 +25,7 @@ export const Login = () => {
       formData.append('password', password);
 
       const response = await axios.post<LoginResponse>(
-        'http://localhost:8081/api/auth/login', 
+        'http://localhost:8081/api/auth/login',
         formData.toString(),
         {
           headers: {
@@ -33,19 +35,18 @@ export const Login = () => {
       );
 
       if (response.data.success) {
-        setSuccess('¡Login exitoso!');
-        // Redirect to root page instead of admin
-        navigate('/');
+        setSuccess('Login exitoso');
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
       } else {
         setError(response.data.message || 'Error en la autenticación');
       }
     } catch (error) {
-      console.error('Login error:', error);
       if (axios.isAxiosError(error)) {
-        const message = error.response?.data?.message || 'Usuario o contraseña incorrectos.';
-        setError(message);
+        setError(error.response?.data?.message || 'Usuario o contraseña incorrectos');
       } else {
-        setError('Error en el servidor. Por favor, inténtelo de nuevo más tarde.');
+        setError('Error en el servidor');
       }
     }
   };
