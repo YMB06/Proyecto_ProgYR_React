@@ -10,11 +10,26 @@ interface Coche {
   color: string; 
   imagen: string; 
 }
+interface FilterState {
+  minPrice: number;
+  maxPrice: number;
+  minYear: number;
+  maxYear: number;
+  searchTerm: string;
+}
 
 const Coche = () => {
   const [coches, setCoches] = useState<Coche[]>([]);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
-
+  const [filters, setFilters] = useState<FilterState>({
+    minPrice: 0,
+    maxPrice: 1000000,
+    minYear: 1000,
+    maxYear: new Date().getFullYear(),
+    searchTerm: ''
+  });
+  const [filteredCoches, setFilteredCoches] = useState<Coche[]>([]);
+  const [isFiltersVisible, setIsFiltersVisible] = useState(false);
   // Función para obtener la URL de las imágenes
   const getImageUrl = (imageName: string | undefined) => {
     if (!imageName) return '';
@@ -43,6 +58,41 @@ const Coche = () => {
     fetchCoches();
   }, []);
 
+// Add this right after your first useEffect
+useEffect(() => {
+  setFilteredCoches(coches); // Initialize filteredCoches with all coches
+}, [coches]); // This will run whenever coches updates
+
+  useEffect(() => {
+    const applyFilters = () => {
+      let filtered = [...coches];
+  
+      // Apply search filter
+      if (filters.searchTerm) {
+        const searchLower = filters.searchTerm.toLowerCase();
+        filtered = filtered.filter(coche => 
+          coche.marca.toLowerCase().includes(searchLower) ||
+          coche.modelo.toLowerCase().includes(searchLower)
+        );
+      }
+  
+      // Apply price filter
+      filtered = filtered.filter(coche => 
+        coche.precio >= filters.minPrice &&
+        coche.precio <= filters.maxPrice
+      );
+  
+      // Apply year filter
+      filtered = filtered.filter(coche => 
+        coche.año >= filters.minYear &&
+        coche.año <= filters.maxYear
+      );
+  
+      setFilteredCoches(filtered);
+    };
+  
+    applyFilters();
+  }, [coches, filters]);
   return (
     <div className="container py-4">
       {/* Título */}
@@ -52,10 +102,159 @@ const Coche = () => {
           <p className="lead text-center">Encuentra el coche perfecto para tu viaje</p>
         </div>
       </div>
+      <div className="row mb-4">
+  <div className="col-12">
+    <div className="d-flex justify-content-between align-items-center mb-3">
+      <button 
+        className="btn btn-primary d-flex align-items-center gap-2"
+        onClick={() => setIsFiltersVisible(!isFiltersVisible)}
+      >
+        <i className="bi bi-funnel"></i>
+        Filtros
+        <span className="badge bg-light text-primary">
+          {Object.values(filters).filter(value => value !== '').length}
+        </span>
+      </button>
 
+      {/* Results count */}
+      <span className="text-muted">
+        {filteredCoches.length} vehículos encontrados
+      </span>
+    </div>
+
+    {/* Collapsible filters */}
+    <div className={`collapse ${isFiltersVisible ? 'show' : ''}`}>
+      <div className="card shadow-sm border-0">
+        <div className="card-body bg-light">
+          <div className="row g-3">
+            {/* Search */}
+            <div className="col-12">
+              <div className="input-group">
+                <span className="input-group-text bg-white">
+                  <i className="bi bi-search"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Buscar por marca o modelo..."
+                  value={filters.searchTerm}
+                  onChange={(e) => setFilters(prev => ({
+                    ...prev,
+                    searchTerm: e.target.value
+                  }))}
+                />
+              </div>
+            </div>
+
+            {/* Price Range */}
+            <div className="col-12 col-md-6">
+              <div className="card h-100">
+                <div className="card-body">
+                  <h6 className="card-subtitle mb-3">
+                    <i className="bi bi-currency-euro me-2"></i>
+                    Precio por día
+                  </h6>
+                  <div className="d-flex gap-2">
+                    <div className="input-group">
+                      <span className="input-group-text">€</span>
+                      <input
+                        type="number"
+                        className="form-control"
+                        placeholder="Min"
+                        value={filters.minPrice}
+                        onChange={(e) => setFilters(prev => ({
+                          ...prev,
+                          minPrice: Number(e.target.value)
+                        }))}
+                      />
+                    </div>
+                    <div className="input-group">
+                      <span className="input-group-text">€</span>
+                      <input
+                        type="number"
+                        className="form-control"
+                        placeholder="Max"
+                        value={filters.maxPrice}
+                        onChange={(e) => setFilters(prev => ({
+                          ...prev,
+                          maxPrice: Number(e.target.value)
+                        }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Year Range */}
+            <div className="col-12 col-md-6">
+              <div className="card h-100">
+                <div className="card-body">
+                  <h6 className="card-subtitle mb-3">
+                    <i className="bi bi-calendar3 me-2"></i>
+                    Año del vehículo
+                  </h6>
+                  <div className="d-flex gap-2">
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bi bi-caret-right-fill"></i>
+                      </span>
+                      <input
+                        type="number"
+                        className="form-control"
+                        placeholder="Desde"
+                        value={filters.minYear}
+                        onChange={(e) => setFilters(prev => ({
+                          ...prev,
+                          minYear: Number(e.target.value)
+                        }))}
+                      />
+                    </div>
+                    <div className="input-group">
+                      <span className="input-group-text">
+                        <i className="bi bi-caret-left-fill"></i>
+                      </span>
+                      <input
+                        type="number"
+                        className="form-control"
+                        placeholder="Hasta"
+                        value={filters.maxYear}
+                        onChange={(e) => setFilters(prev => ({
+                          ...prev,
+                          maxYear: Number(e.target.value)
+                        }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Reset Filters Button */}
+            <div className="col-12">
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => setFilters({
+                  minPrice: 0,
+                  maxPrice: 1000000,
+                  minYear: 1000,
+                  maxYear: new Date().getFullYear(),
+                  searchTerm: ''
+                })}
+              >
+                <i className="bi bi-arrow-counterclockwise me-2"></i>
+                Restablecer filtros
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
       {/* Grid de tarjetas de coches */}
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {coches.map((coche) => (  // Fixed parameter order: item first, then index
+        {filteredCoches.map((coche) => (  // Fixed parameter order: item first, then index
           <div key={coche.id} className="col">
             <div className="card h-100 shadow-sm hover-effect">
               {/* Imagen */}
