@@ -59,31 +59,40 @@ export const Alquiler = () => {
 
 
   // Calculate price when dates or car changes
-  useEffect(() => {
-    const calcularPrecio = async () => {
-      if (!formData.cocheId || !formData.fecha_inicio || !formData.fecha_fin) return;
+useEffect(() => {
+  const calcularPrecio = async () => {
+    if (!formData.cocheId || !formData.fecha_inicio || !formData.fecha_fin) return;
 
-      try {
-        const response = await axios.get(`http://localhost:8081/api/alquileres/calcular-precio`, {
-          params: {
-            cocheId: formData.cocheId,
-            fechaInicio: formData.fecha_inicio,
-            fechaFin: formData.fecha_fin
-          }
-        });
+    try {
+      const response = await axios.get(`http://localhost:8081/api/alquileres/calcular-precio`, {
+        params: {
+          cocheId: formData.cocheId,
+          fechaInicio: formData.fecha_inicio,
+          fechaFin: formData.fecha_fin
+        }
+      });
 
+      if (response.data && typeof response.data.precioTotal === 'number') {
         setFormData(prev => ({
           ...prev,
           precio_total: response.data.precioTotal
         }));
-      } catch (err) {
-        console.error('Error calculating price:', err);
+      } else {
+        console.error('Invalid price data received:', response.data);
       }
-    };
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error('Error calculating price:', err.response?.data || err.message);
+        setError('Error al calcular el precio. Por favor, inténtelo de nuevo.');
+      } else {
+        console.error('Unexpected error:', err);
+        setError('Error inesperado al calcular el precio.');
+      }
+    }
+  };
 
-    calcularPrecio();
-  }, [formData.cocheId, formData.fecha_inicio, formData.fecha_fin]);
-
+  calcularPrecio();
+}, [formData.cocheId, formData.fecha_inicio, formData.fecha_fin]);
 
 
      

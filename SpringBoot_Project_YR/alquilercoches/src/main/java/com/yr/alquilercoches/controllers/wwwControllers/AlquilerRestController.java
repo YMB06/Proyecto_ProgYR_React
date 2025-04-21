@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import com.yr.alquilercoches.models.entities.*;
 import com.yr.alquilercoches.models.services.*;
 import java.util.Map;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
@@ -42,7 +45,34 @@ public class AlquilerRestController {
             return ResponseEntity.badRequest().body(Map.of("available", false));
         }
     }
+@GetMapping("/calcular-precio")
+public ResponseEntity<Map<String, BigDecimal>> calcularPrecio(
+    @RequestParam Long cocheId,
+    @RequestParam String fechaInicio,
+    @RequestParam String fechaFin
+) {
+    try {
+        // Get the car
+        Coches coche = cochesService.getId(cocheId);
+        if (coche == null) {
+            return ResponseEntity.notFound().build();
+        }
 
+        // Parse dates
+        LocalDate inicio = LocalDate.parse(fechaInicio);
+        LocalDate fin = LocalDate.parse(fechaFin);
+        
+        // Calculate number of days
+        long days = ChronoUnit.DAYS.between(inicio, fin) + 1;
+        
+        // Calculate total price
+        BigDecimal precioTotal = coche.getPrecio().multiply(BigDecimal.valueOf(days));
+        
+        return ResponseEntity.ok(Map.of("precioTotal", precioTotal));
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().build();
+    }
+}
     // Create new rental
     @PostMapping
 public ResponseEntity<?> createAlquiler(@RequestBody AlquilerDTO alquilerDTO) {

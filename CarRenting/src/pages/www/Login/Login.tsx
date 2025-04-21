@@ -43,12 +43,10 @@ export const Login = () => {
       if (response.data.success && response.data.role) {
         setSuccess('Login exitoso');
         
-        // Store the role in AuthContext
         login(response.data.role);
         
         console.log('Role set:', response.data.role);
   
-        // Navigate based on role
         if (response.data.role === 'ROLE_ADMIN') {
           navigate('/admin');
         } else {
