@@ -59,34 +59,84 @@ export const Alquiler = () => {
 
 
   // Calculate price when dates or car changes
-  useEffect(() => {
-    const calcularPrecio = async () => {
-      if (!formData.cocheId || !formData.fecha_inicio || !formData.fecha_fin) return;
+useEffect(() => {
+  const calcularPrecio = async () => {
+    if (!formData.cocheId || !formData.fecha_inicio || !formData.fecha_fin) return;
 
-      try {
-        const response = await axios.get(`http://localhost:8081/api/alquileres/calcular-precio`, {
-          params: {
-            cocheId: formData.cocheId,
-            fechaInicio: formData.fecha_inicio,
-            fechaFin: formData.fecha_fin
-          }
-        });
+    try {
+      const response = await axios.get(`http://localhost:8081/api/alquileres/calcular-precio`, {
+        params: {
+          cocheId: formData.cocheId,
+          fechaInicio: formData.fecha_inicio,
+          fechaFin: formData.fecha_fin
+        }
+      });
 
+      if (response.data && typeof response.data.precioTotal === 'number') {
         setFormData(prev => ({
           ...prev,
           precio_total: response.data.precioTotal
         }));
-      } catch (err) {
-        console.error('Error calculating price:', err);
+      } else {
+        console.error('Invalid price data received:', response.data);
       }
-    };
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error('Error calculating price:', err.response?.data || err.message);
+        setError('Error al calcular el precio. Por favor, inténtelo de nuevo.');
+      } else {
+        console.error('Unexpected error:', err);
+        setError('Error inesperado al calcular el precio.');
+      }
+    }
+  };
 
-    calcularPrecio();
-  }, [formData.cocheId, formData.fecha_inicio, formData.fecha_fin]);
+  calcularPrecio();
+}, [formData.cocheId, formData.fecha_inicio, formData.fecha_fin]);
 
 
+     // Add this before the return statement
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null);
 
-     
+  if (!formData.cocheId || !formData.fecha_inicio || !formData.fecha_fin) {
+    setError('Por favor complete todos los campos');
+    return;
+  }
+
+  try {
+    const response = await axios.post('http://localhost:8081/api/alquileres', {
+      cocheId: parseInt(formData.cocheId),
+      fechaInicio: formData.fecha_inicio,
+      fechaFin: formData.fecha_fin,
+      precioTotal: formData.precio_total
+    });
+
+    if (response.data) {
+      // Refresh the rentals list
+      const alquileresRes = await axios.get<Alquiler[]>('http://localhost:8081/api/alquileres');
+      setAlquileres(alquileresRes.data);
+      
+      // Reset form
+      setFormData({
+        cocheId: '',
+        fecha_inicio: '',
+        fecha_fin: '',
+        precio_total: 0
+      });
+    }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const errorMessage = err.response?.data?.error || 'Error al crear el alquiler';
+      setError(errorMessage);
+      console.error('Error creating rental:', err.response?.data);
+    } else {
+      setError('Error inesperado al crear el alquiler');
+      console.error('Unexpected error:', err);
+    }
+  }
+};
 
   return (
     <div className="container-fluid p-4">
@@ -103,7 +153,57 @@ export const Alquiler = () => {
       <h2 className="mb-3 text-center">
         <i className="bi bi-calendar-check"></i> Mis Alquileres
       </h2>
-  
+      // Add this inside your return statement, before the alquileres list
+<form onSubmit={handleSubmit} className="mb-4">
+  <div className="row g-3">
+    <div className="col-md-4">
+      <label className="form-label">Coche</label>
+      <select 
+        className="form-select"
+        value={formData.cocheId}
+        onChange={(e) => setFormData({...formData, cocheId: e.target.value})}
+        required
+      >
+        <option value="">Seleccione un coche</option>
+        {/* Add your car options here */}
+      </select>
+    </div>
+    <div className="col-md-3">
+      <label className="form-label">Fecha de inicio</label>
+      <input
+        type="date"
+        className="form-control"
+        value={formData.fecha_inicio}
+        onChange={(e) => setFormData({...formData, fecha_inicio: e.target.value})}
+        required
+      />
+    </div>
+    <div className="col-md-3">
+      <label className="form-label">Fecha de fin</label>
+      <input
+        type="date"
+        className="form-control"
+        value={formData.fecha_fin}
+        onChange={(e) => setFormData({...formData, fecha_fin: e.target.value})}
+        required
+      />
+    </div>
+    <div className="col-md-2">
+      <label className="form-label">Precio Total</label>
+      <input
+        type="number"
+        className="form-control"
+        value={formData.precio_total}
+        readOnly
+      />
+    </div>
+    <div className="col-12">
+      <button type="submit" className="btn btn-primary">
+        <i className="bi bi-plus-circle me-2"></i>Crear Alquiler
+      </button>
+    </div>
+  </div>
+</form>
       {alquileres.length > 0 ? (
         <div className="row">
           {alquileres.map((alquiler) => (
