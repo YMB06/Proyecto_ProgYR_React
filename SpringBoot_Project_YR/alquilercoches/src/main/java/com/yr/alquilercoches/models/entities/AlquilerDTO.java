@@ -3,8 +3,8 @@ package com.yr.alquilercoches.models.entities;
 import java.math.BigDecimal;
 
 public class AlquilerDTO {
-    private Long cocheId;           // Changed from nested object to simple ID
-    private Long clienteId;         // Added client ID
+    private Long cocheId;           
+    private Long clienteId;         
     private String fecha_inicio;
     private String fecha_fin;
     private BigDecimal precio_total;
