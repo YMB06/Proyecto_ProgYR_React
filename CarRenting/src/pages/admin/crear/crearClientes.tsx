@@ -20,14 +20,12 @@ export const CrearCliente = () => {
     e.preventDefault();
     setError(null);
 
-    // Validate data before sending
     if (!formData.nombre || !formData.apellidos || !formData.username || 
         !formData.email || !formData.telefono || !formData.dni || !formData.password) {
         setError('Todos los campos son obligatorios');
         return;
     }
 
-    // Validate DNI format
     const dniRegex = /^[0-9]{8}[A-Za-z]$/;
     if (!dniRegex.test(formData.dni)) {
         setError('El DNI debe tener 8 números seguidos de una letra');
@@ -35,7 +33,6 @@ export const CrearCliente = () => {
     }
 
     try {
-        // Log the data being sent
         console.log('Sending data:', formData);
 
         const response = await axios.post(

@@ -39,12 +39,10 @@ export const EditarCliente = () => {
     if (!formData) return;
 
     try {
-      // Create data object with or without password
       const dataToSend = {
         ...formData,
-        // Only include password if it was changed
+        // solo incluye la contraseeña sis eha cambiado
         ...(changePassword && { password: newPassword }),
-        // Ensure role has ROLE_ prefix
         role: formData.role.startsWith('ROLE_') ? formData.role : `ROLE_${formData.role}`
       };
 
@@ -174,7 +172,7 @@ export const EditarCliente = () => {
       onChange={(e) => {
         setChangePassword(e.target.checked);
         if (!e.target.checked) {
-          setNewPassword(''); // Clear password if unchecked
+          setNewPassword(''); 
         }
       }}
     />

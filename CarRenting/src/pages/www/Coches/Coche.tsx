@@ -58,16 +58,14 @@ const Coche = () => {
     fetchCoches();
   }, []);
 
-// Add this right after your first useEffect
 useEffect(() => {
-  setFilteredCoches(coches); // Initialize filteredCoches with all coches
-}, [coches]); // This will run whenever coches updates
+  setFilteredCoches(coches); 
+}, [coches]);
 
   useEffect(() => {
     const applyFilters = () => {
       let filtered = [...coches];
   
-      // Apply search filter
       if (filters.searchTerm) {
         const searchLower = filters.searchTerm.toLowerCase();
         filtered = filtered.filter(coche => 
@@ -76,13 +74,11 @@ useEffect(() => {
         );
       }
   
-      // Apply price filter
       filtered = filtered.filter(coche => 
         coche.precio >= filters.minPrice &&
         coche.precio <= filters.maxPrice
       );
   
-      // Apply year filter
       filtered = filtered.filter(coche => 
         coche.año >= filters.minYear &&
         coche.año <= filters.maxYear
@@ -116,13 +112,11 @@ useEffect(() => {
         </span>
       </button>
 
-      {/* Results count */}
       <span className="text-muted">
         {filteredCoches.length} vehículos encontrados
       </span>
     </div>
 
-    {/* Collapsible filters */}
     <div className={`collapse ${isFiltersVisible ? 'show' : ''}`}>
       <div className="card shadow-sm border-0">
         <div className="card-body bg-light">
@@ -186,7 +180,6 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Year Range */}
             <div className="col-12 col-md-6">
               <div className="card h-100">
                 <div className="card-body">
