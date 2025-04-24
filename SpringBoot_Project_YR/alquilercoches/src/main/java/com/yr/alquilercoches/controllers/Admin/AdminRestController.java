@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin") // Base de la URL para el controlador REST
+@RequestMapping("/api/admin") 
 public class AdminRestController {
 
     @Autowired

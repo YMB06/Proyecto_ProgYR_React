@@ -140,7 +140,7 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Price Range */}
+            {/* Rango de precio */}
             <div className="col-12 col-md-6">
               <div className="card h-100">
                 <div className="card-body">
@@ -223,7 +223,7 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Reset Filters Button */}
+            {/* Boton para reiniciar los filtros */}
             <div className="col-12">
               <button
                 className="btn btn-outline-secondary"
@@ -247,7 +247,7 @@ useEffect(() => {
 </div>
       {/* Grid de tarjetas de coches */}
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {filteredCoches.map((coche) => (  // Fixed parameter order: item first, then index
+        {filteredCoches.map((coche) => (  
           <div key={coche.id} className="col">
             <div className="card h-100 shadow-sm hover-effect">
               {/* Imagen */}

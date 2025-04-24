@@ -11,7 +11,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize state from localStorage
+  // inicia el estado de autenticación y el rol del usuario desde localStorage para que alrecargar la pagina
+  // no haya problemas
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('isAuthenticated') === 'true';
   });
@@ -20,7 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return localStorage.getItem('userRole');
   });
 
-  // Update localStorage when auth state changes
+  // actualiza el localStorage cada vez que cambia el estado de autenticación o el rol del usuario
   useEffect(() => {
     localStorage.setItem('isAuthenticated', isAuthenticated.toString());
     if (userRole) {
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setUserRole(null);
-    // Clear localStorage on logout
+    // vacia el localStorage al cerrar sesión
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userRole');
   };

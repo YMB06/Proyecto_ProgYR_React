@@ -35,7 +35,7 @@ export const DetalleCoche = () => {
     fetchCoche();
   }, [id]);
 
-  // Calculate price and check availability when dates change
+  // recalcula el precio y vuelve a comprobar la disponiblidad cuando cambias las fechas de reserva del coche
   useEffect(() => {
     const calculatePriceAndAvailability = async () => {
       if (!fechaInicio || !fechaFin || !coche) {

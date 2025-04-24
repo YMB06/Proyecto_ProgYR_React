@@ -13,7 +13,7 @@ import com.yr.alquilercoches.models.services.AlquilerService;
 import com.yr.alquilercoches.models.services.ClienteService;
 
 @RestController
-@RequestMapping("/api/admin/clientes") // Base de la ruta REST
+@RequestMapping("/api/admin/clientes") 
 public class AdminClienteRestController {
 
     @Autowired
@@ -51,7 +51,7 @@ public class AdminClienteRestController {
     @PostMapping("/crear")
 public ResponseEntity<?> crearCliente(@RequestBody Clientes cliente) {
     try {
-        // Detailed logging of received data
+        //souts para depuracion
         System.out.println("=== Received Client Data ===");
         System.out.println("Nombre: " + cliente.getNombre());
         System.out.println("Apellidos: " + cliente.getApellidos());
@@ -62,7 +62,7 @@ public ResponseEntity<?> crearCliente(@RequestBody Clientes cliente) {
         System.out.println("Role: " + cliente.getRole());
         System.out.println("Password present: " + (cliente.getPassword() != null && !cliente.getPassword().isEmpty()));
         
-        // Field by field validation with specific error messages
+        // Validaciones
         if (cliente.getNombre() == null || cliente.getNombre().isEmpty()) {
             return ResponseEntity.badRequest().body("El nombre es obligatorio");
         }
@@ -85,18 +85,18 @@ public ResponseEntity<?> crearCliente(@RequestBody Clientes cliente) {
             return ResponseEntity.badRequest().body("El DNI es obligatorio");
         }
 
-        // Validate DNI format
+        // comprueba el DNI
         if (!cliente.getDni().matches("[0-9]{8}[A-Za-z]")) {
             return ResponseEntity.badRequest().body("El formato del DNI es inválido");
         }
 
-        // Check if username already exists
+        // Comprueba si el usuario ya existe
         if (clienteService.findByUsername(cliente.getUsername()) != null) {
             return ResponseEntity.badRequest().body("El nombre de usuario ya existe");
         }
 
         try {
-            // Encode password
+            // contraseña encriptada
             String encodedPassword = passwordEncoder.encode(cliente.getPassword());
             cliente.setPassword(encodedPassword);
         } catch (Exception e) {
@@ -104,12 +104,12 @@ public ResponseEntity<?> crearCliente(@RequestBody Clientes cliente) {
             return ResponseEntity.badRequest().body("Error al procesar la contraseña");
         }
 
-        // Ensure role has ROLE_ prefix
+        // Nos aseguramos que el rol tenga el prefijo "ROLE_"
         if (!cliente.getRole().startsWith("ROLE_")) {
             cliente.setRole("ROLE_" + cliente.getRole());
         }
 
-        // Save client
+        // Guardamos el cliente
         try {
             Clientes savedCliente = clienteService.save(cliente);
             System.out.println("Cliente saved successfully with ID: " + savedCliente.getId());

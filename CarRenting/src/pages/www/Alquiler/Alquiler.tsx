@@ -28,7 +28,7 @@ export const Alquiler = () => {
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
 
-  // Load rentals and cars
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -47,7 +47,7 @@ export const Alquiler = () => {
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Error al cargar los datos. Por favor, inténtelo de nuevo más tarde.');
-        setAlquileres([]); // Set empty array on error
+        setAlquileres([]); 
       }
     };
 
@@ -58,7 +58,6 @@ export const Alquiler = () => {
 
 
 
-  // Calculate price when dates or car changes
 useEffect(() => {
   const calcularPrecio = async () => {
     if (!formData.cocheId || !formData.fecha_inicio || !formData.fecha_fin) return;
