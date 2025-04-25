@@ -47,6 +47,7 @@ export const Login = () => {
         
         console.log('Role set:', response.data.role);
   
+        // si es un admin lo redirige a la pagina de administrador
         if (response.data.role === 'ROLE_ADMIN') {
           navigate('/admin');
         } else {

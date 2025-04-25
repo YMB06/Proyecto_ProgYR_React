@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../../config/AuthProvider";
+
 
 const AdminMenu = () => {
+  const {logout } = useAuth();
+
   return (
     <nav
       className="navbar navbar-dark bg-dark position-fixed h-100 d-flex flex-column flex-shrink-0 p-3"
@@ -31,7 +35,7 @@ const AdminMenu = () => {
           </Link>
         </li>
         <li className="nav-item">
-          <button className="nav-link text-danger border-0 bg-transparent d-flex align-items-center w-100">
+          <button className="nav-link text-danger border-0 bg-transparent d-flex align-items-center w-100" onClick={logout}>
             <i className="bi bi-box-arrow-right me-2"></i> Logout
           </button>
         </li>

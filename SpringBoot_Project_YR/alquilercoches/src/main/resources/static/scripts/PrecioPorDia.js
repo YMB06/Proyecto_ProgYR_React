@@ -5,11 +5,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const precioTotal = document.getElementById('precio_total');
     const cochesDataDiv = document.getElementById('cochesData');
 
-    // Get cars data from the hidden div
     const cochesData = JSON.parse(cochesDataDiv.getAttribute('data-coches-json'));
     const precios = {};
 
-    // Create a map of car IDs to their daily prices
     cochesData.forEach(coche => {
         precios[coche.id] = parseFloat(coche.precio);
         console.log(`Car ID: ${coche.id}, Price: ${coche.precio}`);
@@ -33,12 +31,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add event listeners
     cocheSelect.addEventListener('change', calcularPrecioTotal);
     fechaInicio.addEventListener('change', calcularPrecioTotal);
     fechaFin.addEventListener('change', calcularPrecioTotal);
 
-    // Calculate initial price if editing
     if (cocheSelect.value && fechaInicio.value && fechaFin.value) {
         calcularPrecioTotal();
     }

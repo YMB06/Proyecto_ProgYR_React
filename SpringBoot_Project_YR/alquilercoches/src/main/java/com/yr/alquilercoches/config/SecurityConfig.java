@@ -77,15 +77,19 @@ public class SecurityConfig {
     
         return http.build();
     }
-// Add this bean between your existing beans
+
+    // el manager de autenticacion se encarga de autenticar al usuario
+    // y de verificar que la contraseña es correcta
 @Bean
 public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
     return authConfig.getAuthenticationManager();
 }
+
+// permite el acceso a la api desde el frontend
     @Bean
 public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // React dev server
+    configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(Arrays.asList("*"));
     configuration.setAllowCredentials(true);

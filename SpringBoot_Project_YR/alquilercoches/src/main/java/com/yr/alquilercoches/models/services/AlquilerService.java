@@ -63,28 +63,25 @@ public class AlquilerService {
         
         List<Alquiler> existingRentals = alquilerRepository.findByCocheId(cocheId);
         
-        // If no existing rentals, car is available
         if (existingRentals.isEmpty()) {
             return true;
         }
         
-        // Check each existing rental for overlap
         for (Alquiler rental : existingRentals) {
             LocalDate rentalStart = LocalDate.parse(rental.getFecha_inicio());
             LocalDate rentalEnd = LocalDate.parse(rental.getFecha_fin());
             
-            // Overlap check: if either the start or end date falls within an existing rental period
             boolean hasOverlap = !(
-                requestEnd.isBefore(rentalStart) || // Requested period ends before rental starts
-                requestStart.isAfter(rentalEnd)     // Requested period starts after rental ends
+                requestEnd.isBefore(rentalStart) ||
+                requestStart.isAfter(rentalEnd)    
             );
             
             if (hasOverlap) {
-                return false; // Car is not available
+                return false; 
             }
         }
         
-        return true; // No overlaps found, car is available
+        return true; 
     }
 
     

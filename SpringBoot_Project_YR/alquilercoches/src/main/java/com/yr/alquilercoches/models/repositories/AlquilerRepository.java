@@ -15,6 +15,7 @@ public interface AlquilerRepository extends JpaRepository<Alquiler, Long>{
     List<Alquiler> findByClienteId(Long clienteId);
     List<Alquiler> findTop10ByOrderByIdDesc();
     
+    // esta consulta devuelve los alquileres activos de un cliente
  @Query("SELECT a FROM Alquiler a WHERE a.cliente.id = :clienteId AND a.fecha_fin >= :currentDate")
     List<Alquiler> findActiveRentalsByClienteId(
         @Param("clienteId") Long clienteId, 

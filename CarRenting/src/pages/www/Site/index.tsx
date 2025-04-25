@@ -46,7 +46,6 @@ export const Index: React.FC = () => {
 
       {/* Carrusel con los coches */}
       <div id="carCarousel" className="carousel slide mb-4" data-bs-ride="carousel">
-  {/* Add indicators */}
   <div className="carousel-indicators">
     {coches.map((_, index) => (
       <button
@@ -61,7 +60,6 @@ export const Index: React.FC = () => {
     ))}
   </div>
 
-  {/* Your existing carousel-inner code */}
   <div className="carousel-inner">
     {coches.map((coche, index) => (
       <div key={coche.id} className={`carousel-item ${index === 0 ? 'active' : ''}`}>

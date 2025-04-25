@@ -10,7 +10,7 @@ import com.yr.alquilercoches.models.entities.Clientes;
 import com.yr.alquilercoches.models.services.ClienteService;
 
 @RestController
-@RequestMapping("/api/register") // Base de URL REST
+@RequestMapping("/api/register")
 public class RegisterRestController {
 
     @Autowired
@@ -22,6 +22,7 @@ public class RegisterRestController {
     // POST: Registrar un cliente
     @PostMapping
     public ResponseEntity<String> registrarCliente(@RequestBody ClienteRegistroDTO dto) {
+        // el dto recibe los datos del cliente desde el formulario de registro
         try {
             Clientes cliente = new Clientes();
             cliente.setNombre(dto.getNombre());
@@ -42,7 +43,7 @@ public class RegisterRestController {
         }
     }
     
-    // GET: Mostrar el formulario de registro (ejemplo adaptado)
+    // GET: Mostrar el formulario de registro
     @GetMapping
     public ResponseEntity<String> showRegistrationInfo() {
         return ResponseEntity.ok("Endpoint para registrar nuevos clientes.");

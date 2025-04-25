@@ -11,7 +11,7 @@ public class ClienteRestController {
 
     @GetMapping("/api/cliente/index")
     public ResponseEntity<Clientes> clienteIndex() {
-        Clientes cliente = new Clientes(); // Crear un nuevo objeto Clientes (puedes personalizarlo)
-        return ResponseEntity.ok(cliente); // Devolver el objeto como respuesta
+        Clientes cliente = new Clientes();
+        return ResponseEntity.ok(cliente);
     }
 }

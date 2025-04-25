@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 @CrossOrigin(origins = "http://localhost:5173")
 public class ImageController {
     
+    // nos da la imagen del coche
     @GetMapping("/images/{filename}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) throws IOException {
         Path imagePath = Paths.get("uploads/coches").resolve(filename);

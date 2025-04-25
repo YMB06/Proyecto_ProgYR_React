@@ -68,14 +68,13 @@ export const Register = () => {
         }
       );
       
-      console.log('Response:', response); // Debug log
-
+      console.log('Response:', response); 
       if (response.status === 200) {
         setSuccess('Registro exitoso');
         setTimeout(() => navigate('/login'), 2000);
       }
     } catch (error) {
-      console.error('Error details:', error); // Debug log
+      console.error('Error details:', error); 
       if (axios.isAxiosError(error)) {
         setError(error.response?.data || 'Error en el registro. Por favor, inténtelo de nuevo.');
       } else {

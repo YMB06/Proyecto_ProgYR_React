@@ -24,14 +24,14 @@ public class AlquilerRestController {
 
     @Autowired
     private ClienteService clienteService;
-    // GET all rentals
+   
     @GetMapping
     public ResponseEntity<List<Alquiler>> getAllAlquileres() {
         List<Alquiler> alquileres = alquilerService.getAll();
         return ResponseEntity.ok(alquileres);
     }
 
-    // Check availability
+    // comprobar disponibilidad de un coche
     @GetMapping("/check-availability")
     public ResponseEntity<Map<String, Boolean>> checkAvailability(
             @RequestParam Long cocheId,
@@ -45,6 +45,8 @@ public class AlquilerRestController {
             return ResponseEntity.badRequest().body(Map.of("available", false));
         }
     }
+
+    //calcular precio total de un alquiler
 @GetMapping("/calcular-precio")
 public ResponseEntity<Map<String, BigDecimal>> calcularPrecio(
     @RequestParam Long cocheId,
@@ -52,20 +54,16 @@ public ResponseEntity<Map<String, BigDecimal>> calcularPrecio(
     @RequestParam String fechaFin
 ) {
     try {
-        // Get the car
         Coches coche = cochesService.getId(cocheId);
         if (coche == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // Parse dates
         LocalDate inicio = LocalDate.parse(fechaInicio);
         LocalDate fin = LocalDate.parse(fechaFin);
         
-        // Calculate number of days
         long days = ChronoUnit.DAYS.between(inicio, fin) + 1;
         
-        // Calculate total price
         BigDecimal precioTotal = coche.getPrecio().multiply(BigDecimal.valueOf(days));
         
         return ResponseEntity.ok(Map.of("precioTotal", precioTotal));
@@ -77,7 +75,7 @@ public ResponseEntity<Map<String, BigDecimal>> calcularPrecio(
     @PostMapping
 public ResponseEntity<?> createAlquiler(@RequestBody AlquilerDTO alquilerDTO) {
     try {
-        // Create new Alquiler entity
+        // crea el objeto Alquiler a partir del DTO 
         Alquiler newAlquiler = new Alquiler();
         newAlquiler.setCoche(cochesService.getId(alquilerDTO.getCocheId()));
         newAlquiler.setCliente(clienteService.getId(alquilerDTO.getClienteId()));
@@ -85,7 +83,7 @@ public ResponseEntity<?> createAlquiler(@RequestBody AlquilerDTO alquilerDTO) {
         newAlquiler.setFecha_fin(alquilerDTO.getFecha_fin());
         newAlquiler.setPrecio_total(alquilerDTO.getPrecio_total());
         
-        // Verify availability
+        // verifica si el coche está disponible para las fechas seleccionadas
         if (!alquilerService.isCarAvailable(
                 alquilerDTO.getCocheId(),
                 alquilerDTO.getFecha_inicio(),
@@ -95,11 +93,11 @@ public ResponseEntity<?> createAlquiler(@RequestBody AlquilerDTO alquilerDTO) {
                 .body(Map.of("message", "El coche no está disponible para las fechas seleccionadas"));
         }
         
-        // Save the rental
+        // guarda el alquiler
         Alquiler saved = alquilerService.create(newAlquiler);
         return ResponseEntity.status(201).body(saved);
     } catch (Exception e) {
-        e.printStackTrace(); // For debugging
+        e.printStackTrace(); 
         return ResponseEntity
             .status(500)
             .body(Map.of("message", "Error al crear el alquiler: " + e.getMessage()));

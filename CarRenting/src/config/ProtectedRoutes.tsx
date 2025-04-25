@@ -14,7 +14,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, userRole } = useAuth();
     
-    console.log('Auth state:', { isAuthenticated, userRole }); // Debug log
+    console.log('Auth state:', { isAuthenticated, userRole }); 
     
     if (!isAuthenticated) {
       console.log('Not authenticated, redirecting to login');

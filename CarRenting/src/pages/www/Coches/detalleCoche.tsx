@@ -22,7 +22,7 @@ export const DetalleCoche = () => {
   const [disponibilidad, setDisponibilidad] = useState<{ mensaje: string; exito: boolean } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch car details
+
   useEffect(() => {
     const fetchCoche = async () => {
       try {
@@ -35,7 +35,7 @@ export const DetalleCoche = () => {
     fetchCoche();
   }, [id]);
 
-  // Calculate price and check availability when dates change
+  // recalcula el precio y vuelve a comprobar la disponiblidad cuando cambias las fechas de reserva del coche
   useEffect(() => {
     const calculatePriceAndAvailability = async () => {
       if (!fechaInicio || !fechaFin || !coche) {
@@ -56,7 +56,7 @@ export const DetalleCoche = () => {
         return;
       }
 
-      // Calculate days (including start and end days)
+      // Calcula el precio total
       const days = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
       const total = days * coche.precio;
       setPrecioTotal(total);
@@ -96,8 +96,8 @@ export const DetalleCoche = () => {
       const response = await axios.post(
         'http://localhost:8081/api/alquileres',
         {
-          cocheId: coche?.id,        // Changed from nested object to simple ID
-          clienteId: 1,              // Hardcoded for now - replace with actual user ID
+          cocheId: coche?.id,        
+          clienteId: 1,              
           fecha_inicio: fechaInicio,
           fecha_fin: fechaFin,
           precio_total: precioTotal
@@ -138,7 +138,7 @@ export const DetalleCoche = () => {
   return (
     <div className="container py-4">
       <div className="row justify-content-center">
-        {/* Car Image */}
+        {/* Imagen */}
         <div className="col-12 col-md-6 mb-4">
           <div className="card shadow-sm">
             {coche.imagen && (
@@ -156,7 +156,7 @@ export const DetalleCoche = () => {
           </div>
         </div>
 
-        {/* Car Details */}
+        {/* Detalles del coche */}
         <div className="col-12 col-md-6">
           <h2 className="h3 mb-4">{`${coche.marca} ${coche.modelo}`}</h2>
 
@@ -178,7 +178,7 @@ export const DetalleCoche = () => {
                 </li>
               </ul>
 
-              {/* Rental Form */}
+              {/* Formulario de alquiler */}
               <form className="mt-4" onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label htmlFor="fecha_inicio" className="form-label">

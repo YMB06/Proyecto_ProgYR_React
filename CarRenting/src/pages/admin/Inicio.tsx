@@ -54,7 +54,7 @@ export const AdminDashboard = () => {
     <div className="container py-4">
       <h1 className="mb-4">Panel de Administración</h1>
       
-      {/* Resumen estadístico */}
+      {/* Estadisticas de la empresa */}
       <div className="row mb-4">
         <div className="col-md-3">
           <div className="card bg-primary text-white">
@@ -125,7 +125,7 @@ export const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Enlaces de administración */}
+      {/* Enlaces a las tablas */}
       <div className="row mt-4">
         <div className="col-md-4">
           <div className="card">

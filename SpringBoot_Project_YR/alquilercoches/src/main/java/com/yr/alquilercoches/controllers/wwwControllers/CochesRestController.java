@@ -17,8 +17,8 @@ import com.yr.alquilercoches.models.entities.Coches;
 import com.yr.alquilercoches.models.services.CochesService;
 
 @RestController
-@RequestMapping("/api/coches") // Define la base de la URL
-@CrossOrigin(origins = "http://localhost:5173") // Permitir acceso desde tu frontend
+@RequestMapping("/api/coches") 
+@CrossOrigin(origins = "http://localhost:5173")
 public class CochesRestController {
     @Autowired
     private CochesService cochesService;
@@ -27,6 +27,8 @@ public class CochesRestController {
     public ResponseEntity<List<Coches>> getAllCars() {
         return ResponseEntity.ok(cochesService.getAll());
     }
+
+    // este es el mappping para la imagen
 @GetMapping("/api/coches/imagen/{filename}")
 public ResponseEntity<Resource> getImage(@PathVariable String filename) throws IOException {
     Path imagePath = Paths.get("uploads/coches").resolve(filename);
@@ -40,7 +42,7 @@ public ResponseEntity<Resource> getImage(@PathVariable String filename) throws I
     
     return ResponseEntity.notFound().build();
 }
-    @GetMapping("/{id}") // Remove "api/coches" here to avoid redundancy
+    @GetMapping("/{id}") 
     public ResponseEntity<Coches> getCarById(@PathVariable Long id) {
         return ResponseEntity.ok(cochesService.getId(id));
     }

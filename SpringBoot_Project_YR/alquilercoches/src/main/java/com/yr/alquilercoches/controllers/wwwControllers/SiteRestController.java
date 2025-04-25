@@ -10,7 +10,7 @@ import com.yr.alquilercoches.models.entities.Coches;
 import com.yr.alquilercoches.models.services.CochesService;
 
 @RestController
-@RequestMapping("/api/site") // Base de URL REST
+@RequestMapping("/api/site") 
 public class SiteRestController {
 
     @Autowired
@@ -20,6 +20,6 @@ public class SiteRestController {
     @GetMapping
     public ResponseEntity<List<Coches>> getAllCoches() {
         List<Coches> coches = cochesService.getAll();
-        return ResponseEntity.ok(coches); // Devuelve la lista de coches en formato JSON
+        return ResponseEntity.ok(coches); 
     }
 }

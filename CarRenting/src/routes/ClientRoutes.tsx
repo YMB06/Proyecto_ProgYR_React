@@ -11,23 +11,15 @@ import { ProtectedRoute } from '../config/ProtectedRoutes';
 
 export const ClientRoutes = () => {
   return (
-      // <Routes>
-      //   <Route path="/" element={<ClientPage><Index /></ClientPage>} />
-      //   <Route path="/coches" element={<ClientPage><Coche /></ClientPage>} />
-      //   <Route path="/coches/:id" element={<ClientPage><DetalleCoche /></ClientPage>} />
-      //   <Route path="/alquiler" element={<ClientPage><Alquiler /></ClientPage>} />
-      //   <Route path="/login" element={<Login />} />
-      //   <Route path="/register" element={<Register />} />
 
-      // </Routes>
     
         <Routes>
-          {/* Public routes */}
+          {/* Ruta publica */}
           <Route path="/" element={<ClientPage><Index /></ClientPage>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Protected client routes */}
+          {/* Rutas protegidas */}
           <Route path="/coches" element={
             <ProtectedRoute>
               <ClientPage><Coche /></ClientPage>

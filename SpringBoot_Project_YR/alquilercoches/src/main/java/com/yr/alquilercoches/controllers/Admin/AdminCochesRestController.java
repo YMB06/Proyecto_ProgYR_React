@@ -19,7 +19,7 @@ import com.yr.alquilercoches.models.services.AlquilerService;
 import com.yr.alquilercoches.models.services.CochesService;
 
 @RestController
-@RequestMapping("/api/admin/coches") // Base de la URL para el controlador REST
+@RequestMapping("/api/admin/coches") 
 public class AdminCochesRestController {
 
     @Autowired
@@ -57,11 +57,15 @@ public class AdminCochesRestController {
                                       @RequestParam("file") MultipartFile file) {
         try {
             if (!file.isEmpty()) {
+                // le da un UUID al nombre del archivo
                 String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+
                 Path uploadDir = Paths.get(uploadPath);
                 if (!Files.exists(uploadDir)) {
                     Files.createDirectories(uploadDir);
                 }
+
+                // Guarda el archivo en el directorio de subida
                 Path filePath = uploadDir.resolve(filename);
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
                 coche.setImagen(filename);
